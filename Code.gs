@@ -45,6 +45,19 @@ function doPost(e) {
       appendRating_(body);
       return json_({ ok: true, mensaje: 'Valoración registrada' });
     }
+    if (accion === 'reporte') {
+      body.valoracion = 'DESACTUALIZADA';
+      appendRating_(body);
+      appendStatistic_({
+        sesion: body.sesion,
+        evento: 'REPORTAR_DESACTUALIZADA',
+        idRespuesta: body.idRespuesta,
+        resultado: 'ENVIADO',
+        dispositivo: body.dispositivo || '',
+        navegador: body.navegador || ''
+      });
+      return json_({ ok: true, mensaje: 'Reporte registrado' });
+    }
     return json_({ ok: false, error: 'Acción POST no válida' });
   } catch (err) {
     return json_({ ok: false, error: String(err && err.message || err) });
@@ -53,7 +66,7 @@ function doPost(e) {
 
 function getAllData_() {
   const cache = CacheService.getScriptCache();
-  const cached = cache.get('chatboot_datos_v7');
+  const cached = cache.get('chatboot_datos_v8');
   if (cached) return JSON.parse(cached);
   const data = {
     configuracion: getConfig_(),
@@ -63,7 +76,7 @@ function getAllData_() {
     contactos: getRows_(SHEETS.CONTACTOS, true),
     sinonimos: getRows_(SHEETS.SINONIMOS, true)
   };
-  cache.put('chatboot_datos_v7', JSON.stringify(data), 300);
+  cache.put('chatboot_datos_v8', JSON.stringify(data), 300);
   return data;
 }
 
@@ -149,7 +162,7 @@ function clean_(v) { return String(v == null ? '' : v).trim(); }
 function safe_(v,max) { return clean_(v).replace(/[\u0000-\u001F]/g,' ').slice(0,max); }
 function normalize_(v) { return clean_(v).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9ñáéíóúü ]/g,' '); }
 function toDate_(v) { if (!v) return null; const d = new Date(v); return isNaN(d.getTime()) ? null : new Date(d.getFullYear(),d.getMonth(),d.getDate()); }
-function limpiarCache() { CacheService.getScriptCache().remove('chatboot_datos_v7'); }
+function limpiarCache() { CacheService.getScriptCache().remove('chatboot_datos_v8'); }
 
 /** ASISTENTE IA SEGURA — versión 7.0 */
 function answerAI_(text) {
