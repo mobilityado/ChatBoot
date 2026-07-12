@@ -1,5 +1,7 @@
-const CACHE='chatboot-v6.0-20260712';
-const CORE=['./','./index.html','./api-config.js','./api-integration.js','./manifest.webmanifest','./icon-192.png','./icon-512.png','./image-removebg-preview (22).png','./WHATS-removebg-preview.png','./CONSULTA-removebg-preview.png','./SALDOS-removebg-preview.png','./videos-01.png'];
+const CACHE='chatboot-v7.0-20260712';
+const CORE=['./','./index.html','./api-config.js','./api-integration.js','./manifest.webmanifest','./icon-192.png','./icon-512.png','./image-removebg-preview (22).png','./WHATS-removebg-preview.png','./CONSULTA-removebg-preview.png','./SALDOS-removebg-preview.png','./videos-01.png',
+  './ai-assistant.js'
+];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',e=>{
