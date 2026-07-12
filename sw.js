@@ -1,5 +1,21 @@
-const CACHE='chatboot-v5-20260711';
+const CACHE='chatboot-v5-fix-20260712';
 const CORE=['./','./index.html','./api-config.js','./api-integration.js','./manifest.webmanifest','./WHATS-removebg-preview.png','./CONSULTA-removebg-preview.png','./SALDOS-removebg-preview.png','./videos-01.png'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
-self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(fetch(e.request).then(r=>{const copy=r.clone();caches.open(CACHE).then(c=>c.put(e.request,copy));return r;}).catch(()=>caches.match(e.request).then(r=>r||caches.match('./index.html'))));});
+self.addEventListener('fetch',e=>{
+  if(e.request.method!=='GET') return;
+  e.respondWith(
+    fetch(e.request).then(r=>{
+      if(r && r.ok){
+        const copy=r.clone();
+        caches.open(CACHE).then(c=>c.put(e.request,copy));
+      }
+      return r;
+    }).catch(async()=>{
+      const cached=await caches.match(e.request);
+      if(cached) return cached;
+      if(e.request.mode==='navigate') return caches.match('./index.html');
+      return Response.error();
+    })
+  );
+});

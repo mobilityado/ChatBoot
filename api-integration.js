@@ -10,6 +10,14 @@
   const safeId = value => 'sheet_' + String(value || '').replace(/[^a-zA-Z0-9_-]/g, '_');
   const yes = value => String(value || '').trim().toUpperCase() === 'SI';
 
+  function setConnectionStatus(ok, text) {
+    const el = document.getElementById('connection-status');
+    if (!el) return;
+    el.classList.toggle('offline', !ok);
+    const label = el.querySelector('span:last-child');
+    if (label) label.textContent = text || (ok ? 'Información actualizada' : 'Modo local');
+  }
+
   function post(payload) {
     if (!API) return;
     fetch(API, { method: 'POST', mode: 'no-cors', headers: {'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(payload) }).catch(() => {});
@@ -27,7 +35,7 @@
     const title = row.TEXTO_BOTON || 'Abrir recurso';
     if (type === 'VIDEO' && url) {
       const src = url.includes('player.vimeo.com') ? url : url.replace('vimeo.com/', 'player.vimeo.com/video/');
-      return {type:'video', url:`<iframe src="${src}" width="340" height="360" frameborder="0" allowfullscreen></iframe>`};
+      return {type:'video', url:`<iframe src="${src}" width="340" height="360" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`};
     }
     if (type === 'PDF' && url) return {type:'link', title, url};
     if (type === 'IMAGEN' && url) return {type:'image', url, link:url};
@@ -191,10 +199,11 @@
       const json = await response.json();
       if (!json.ok) throw new Error(json.error || 'API no disponible');
       mergeSheetContent(json.data);
-      // Reinicia para que el menú dinámico aparezca inmediatamente.
+      setConnectionStatus(true, 'Información actualizada');
       if (window.start) window.start();
     } catch (error) {
       console.warn('Chatbot funcionando con contenido local:', error);
+      setConnectionStatus(false, 'Modo local');
     }
   }
 

@@ -157,7 +157,10 @@ function addBotBubble(html, options=null){
       btn.className = 'option-btn';
       if(opt.primary) btn.classList.add('primary');
       btn.innerText = opt.label;
-      btn.onclick = ()=> handleOption(opt);
+      btn.type = 'button';
+      btn.dataset.next = opt.next || '';
+      btn.dataset.label = opt.label || '';
+      btn.dataset.primary = opt.primary ? '1' : '0';
       optDiv.appendChild(btn);
     });
     chatEl.appendChild(optDiv);
@@ -187,6 +190,26 @@ function addUserBubble(text){
   chatEl.appendChild(wrap);
   scrollEnd();
 }
+
+/* Control centralizado de opciones: funciona también con contenido dinámico */
+chatEl.addEventListener('click', (event) => {
+  const button = event.target.closest('button.option-btn[data-next]');
+  if (!button || !chatEl.contains(button)) return;
+  event.preventDefault();
+  event.stopPropagation();
+  if (button.disabled) return;
+  const opt = {
+    label: button.dataset.label || button.textContent.trim(),
+    next: button.dataset.next,
+    primary: button.dataset.primary === '1'
+  };
+  try {
+    handleOption(opt);
+  } catch (error) {
+    console.error('Error al abrir opción:', opt, error);
+    addBotBubble('No fue posible abrir esta opción. Presiona Reiniciar e inténtalo nuevamente.');
+  }
+});
 
 /* nodes (unchanged content) */
 const nodes = {
@@ -476,7 +499,9 @@ function presentNode(nodeId, pushToHistory=true)
   const node = nodes[nodeId];
   if(!node){
     console.warn('Node not found', nodeId);
-    addBotBubble('Lo siento, ocurrió un error interno.'); return;
+    addBotBubble('Esta opción no está disponible por el momento.', [
+      {label:'VOLVER AL INICIO', next:'menuPrincipal', primary:true}
+    ]); return;
   }
   currentNode = nodeId;
 
@@ -531,9 +556,23 @@ function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g, c
 function start(){
   chatEl.innerHTML = '';
   historyStack = [];
+  currentNode = null;
   presentNode('main', false);
   scrollEnd();
 }
+
+/* API pública para la integración con Google Sheets */
+window.nodes = nodes;
+window.presentNode = presentNode;
+window.handleOption = handleOption;
+window.addBotBubble = addBotBubble;
+window.addUserBubble = addUserBubble;
+window.start = start;
+window.openLightbox = openLightbox;
+window.openPdf = openPdf;
+window.closeLightbox = closeLightbox;
+window.escapeHtml = escapeHtml;
+
 start();
 restartBtn.addEventListener('click', ()=> start());
 document.addEventListener('keydown', (e)=>{ if(e.key === 'r' && (e.ctrlKey||e.metaKey)){ start(); } });
