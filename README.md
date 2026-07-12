@@ -1,32 +1,18 @@
-# Asistente Abordo 3.0
+# Asistente Abordo 4.0
 
-Proyecto para GitHub Pages conectado con Google Sheets mediante Google Apps Script.
+Esta versión conserva el flujo original, sus videos de Vimeo, documentos PDF, imágenes y enlaces a herramientas. Además, se conecta con Google Sheets mediante Apps Script.
 
-## URL configurada
+## Archivos clave
+- `index.html`: chatbot original mejorado.
+- `api-config.js`: URL de la aplicación web de Apps Script.
+- `api-integration.js`: carga configuración, avisos, menús y respuestas desde Sheets; registra estadísticas y valoraciones.
+- `sw.js` y `manifest.webmanifest`: instalación PWA y respaldo básico sin conexión.
 
-La API está definida en `api-config.js`. El proyecto ya contiene la implementación indicada por el usuario.
+## Publicación
+Sube el contenido de esta carpeta a la raíz del repositorio `mobilityado/ChatBoot`.
 
-## Subir a GitHub
+## Actualizaciones de Apps Script
+Cada vez que cambies `Code.gs`, crea una nueva versión desde **Implementar > Administrar implementaciones**. Si cambia la URL `/exec`, actualízala en `api-config.js`.
 
-1. Sube el contenido de esta carpeta a la raíz del repositorio `mobilityado/ChatBoot`.
-2. Conserva GitHub Pages apuntando a la rama principal y carpeta raíz.
-3. Abre `https://mobilityado.github.io/ChatBoot/` y usa Ctrl+Shift+R.
-
-## Apps Script
-
-El archivo `google-apps-script/Code.gs` contiene la API completa. Pégalo en el proyecto de Apps Script vinculado al Sheets.
-
-Al actualizar el código del Apps Script:
-1. Implementar > Administrar implementaciones.
-2. Editar la implementación.
-3. Seleccionar Nueva versión.
-4. Ejecutar como: tú.
-5. Acceso: cualquier usuario.
-
-## Hojas esperadas
-
-CONFIGURACION, MENUS, RESPUESTAS, AVISOS, CONTACTOS, SINONIMOS, ESTADISTICAS y VALORACIONES.
-
-## Respaldo
-
-`content.js` permanece como contenido local. Si la API no responde, el chatbot continúa funcionando con ese respaldo.
+## Google Sheets
+El contenido original permanece dentro de `index.html`. El contenido de Sheets se agrega en la opción **NOVEDADES Y CONTENIDO ACTUALIZABLE**, por lo que no se pierden las herramientas ni videos existentes.
