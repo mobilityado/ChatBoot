@@ -1,18 +1,11 @@
-# Asistente Abordo 4.0
+# Asistente Abordo 5.0 — Mobility Experience
 
-Esta versión conserva el flujo original, sus videos de Vimeo, documentos PDF, imágenes y enlaces a herramientas. Además, se conecta con Google Sheets mediante Apps Script.
-
-## Archivos clave
-- `index.html`: chatbot original mejorado.
-- `api-config.js`: URL de la aplicación web de Apps Script.
-- `api-integration.js`: carga configuración, avisos, menús y respuestas desde Sheets; registra estadísticas y valoraciones.
-- `sw.js` y `manifest.webmanifest`: instalación PWA y respaldo básico sin conexión.
+Versión profesional del chatbot con diseño corporativo, menú lateral, modo oscuro, accesos rápidos, buscador, voz, conexión con Google Sheets, PWA y respaldo local.
 
 ## Publicación
-Sube el contenido de esta carpeta a la raíz del repositorio `mobilityado/ChatBoot`.
+Sube todos los archivos de esta carpeta a la raíz del repositorio `mobilityado/ChatBoot` y confirma los cambios. Después abre la página con Ctrl+Shift+R o en incógnito.
 
-## Actualizaciones de Apps Script
-Cada vez que cambies `Code.gs`, crea una nueva versión desde **Implementar > Administrar implementaciones**. Si cambia la URL `/exec`, actualízala en `api-config.js`.
-
-## Google Sheets
-El contenido original permanece dentro de `index.html`. El contenido de Sheets se agrega en la opción **NOVEDADES Y CONTENIDO ACTUALIZABLE**, por lo que no se pierden las herramientas ni videos existentes.
+## Administración
+- `api-config.js`: URL del Apps Script.
+- Google Sheets: menús, respuestas, avisos y contactos.
+- `index.html`: interfaz y contenido local de respaldo.
