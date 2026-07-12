@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Asistente Abordo 5.2</title>
+<title>Chatbot Recaudación - Demo (con Avatar y Voz) - Mejorado</title>
 <style>
 :root{
   --primary:#5b2c83; --primary-2:#7c3fad; --accent:#00a987; --danger:#dc3545;
@@ -25,11 +25,11 @@ body.dark{--bg:#0f1420;--panel:#151c2a;--panel-2:#1c2535;--text:#f8fafc;--muted:
 .side-label{text-transform:uppercase;letter-spacing:.12em;font-size:10px;opacity:.55;margin:0 8px}
 .side-nav{display:grid;gap:8px}.side-btn{display:flex;align-items:center;gap:12px;width:100%;border:0;background:transparent;color:#fff;padding:12px 13px;border-radius:14px;text-align:left;font:inherit;font-weight:650;cursor:pointer;transition:.2s}.side-btn:hover,.side-btn.active{background:rgba(255,255,255,.13);transform:translateX(3px)}.side-btn span:first-child{font-size:20px;width:24px;text-align:center}
 .side-card{margin-top:auto;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);padding:15px;border-radius:18px;font-size:13px;line-height:1.5}.side-card strong{display:block;margin-bottom:5px}
-.main-panel{min-width:0;min-height:0;display:flex;flex-direction:column;background:var(--panel);overflow:hidden}
+.main-panel{min-width:0;display:flex;flex-direction:column;background:var(--panel)}
 .header{height:78px;padding:14px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.85);backdrop-filter:blur(12px);z-index:5}.dark .header{background:rgba(21,28,42,.88)}
 .header .info{display:flex;align-items:center;gap:12px}.avatar{width:46px;height:46px;border-radius:15px;background:linear-gradient(135deg,#f4eafa,#e6fff9);display:grid;place-items:center;box-shadow:inset 0 0 0 1px var(--border)}.avatar img{width:31px;height:31px;object-fit:contain}.header .title{font-size:17px;font-weight:800}.header .small{font-size:12px;color:var(--muted);margin-top:3px}.header-actions{display:flex;align-items:center;gap:8px}.status-pill{display:flex;align-items:center;gap:7px;padding:8px 11px;border-radius:999px;background:#ecfdf3;color:#067647;font-size:12px;font-weight:750}.status-dot{width:8px;height:8px;border-radius:50%;background:#12b76a;box-shadow:0 0 0 4px rgba(18,183,106,.12)}.icon-btn{border:1px solid var(--border);background:var(--panel);color:var(--text);width:39px;height:39px;border-radius:12px;cursor:pointer;font-size:18px}.mobile-menu{display:none}
 .hero{padding:18px 22px 8px;background:linear-gradient(180deg,var(--panel),var(--panel-2));border-bottom:1px solid var(--border)}.hero-inner{display:flex;align-items:center;justify-content:space-between;gap:18px}.hero h2{margin:0;font-size:22px}.hero p{margin:5px 0 0;color:var(--muted);font-size:13px}.quick-actions{display:flex;gap:8px;flex-wrap:wrap}.quick-btn{border:1px solid var(--border);background:var(--panel);color:var(--text);padding:9px 12px;border-radius:13px;cursor:pointer;font-weight:700;font-size:12px}.quick-btn:hover{border-color:var(--primary);color:var(--primary)}
-.chat{flex:1;min-height:0;padding:20px 24px;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth;background:linear-gradient(180deg,var(--panel-2),var(--panel))}.chat::-webkit-scrollbar{width:8px}.chat::-webkit-scrollbar-thumb{background:#c9c2d2;border-radius:20px}
+.chat{flex:1;padding:20px 24px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth;background:linear-gradient(180deg,var(--panel-2),var(--panel))}.chat::-webkit-scrollbar{width:8px}.chat::-webkit-scrollbar-thumb{background:#c9c2d2;border-radius:20px}
 .bubble{max-width:min(74%,720px);padding:13px 15px;border-radius:18px;line-height:1.45;box-shadow:0 6px 18px rgba(16,24,40,.07);animation:rise .22s ease;word-wrap:break-word}.bot{align-self:flex-start;background:var(--bot);color:var(--bot-text);border:1px solid var(--border);border-bottom-left-radius:6px}.me{align-self:flex-end;background:linear-gradient(135deg,var(--primary),var(--primary-2));color:var(--me-text);border-bottom-right-radius:6px}.time{display:block;font-size:10px;color:var(--muted);margin-top:7px}.me .time{color:rgba(255,255,255,.72)}
 .options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}.option-btn{border:1px solid var(--border);background:var(--panel-2);color:var(--text);padding:11px 13px;border-radius:13px;cursor:pointer;font-weight:700;text-align:left;transition:.18s}.option-btn:hover{transform:translateY(-1px);border-color:var(--primary);box-shadow:0 7px 18px rgba(91,44,131,.12)}.option-btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
 #global-search{display:flex!important;gap:9px!important;padding:12px 18px!important;background:var(--panel)!important;border-top:1px solid var(--border)!important}#global-search input{flex:1!important;border:1px solid var(--border)!important;background:var(--panel-2)!important;color:var(--text)!important;border-radius:15px!important;padding:12px 15px!important}#global-search button{border-radius:15px!important;padding:10px 18px!important;background:var(--primary)!important}
@@ -130,28 +130,8 @@ function closeLightbox() {
 const chatEl = document.getElementById('chat');
 const restartBtn = document.getElementById('restart');
 
-/* Recuperación visual si una imagen no carga */
-document.querySelectorAll('img').forEach(img => {
-  img.addEventListener('error', () => {
-    if (img.dataset.fallbackApplied) return;
-    img.dataset.fallbackApplied = '1';
-    if (img.id === 'robot-gif') return;
-    img.src = './image-removebg-preview%20(22).png';
-    img.style.objectFit = 'contain';
-  });
-});
-
 function nowTime(){ const d=new Date(); return d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); }
-function scrollEnd(){
-  const move = () => {
-    chatEl.scrollTop = chatEl.scrollHeight;
-    const last = chatEl.lastElementChild;
-    if(last) last.scrollIntoView({block:'end', behavior:'smooth'});
-  };
-  requestAnimationFrame(() => requestAnimationFrame(move));
-  setTimeout(move, 120);
-  setTimeout(move, 320);
-}
+function scrollEnd(){ setTimeout(()=> chatEl.scrollTop = chatEl.scrollHeight, 80); }
 
 /* voice/read flags */
 let lastInputWasVoice = false; // set true when user spoke
@@ -552,7 +532,6 @@ function presentNode(nodeId, pushToHistory=true)
       });
     }
     addBotBubble(html, [{label:'REGRESAR', next:'__REGRESAR__', primary:true}]);
-    scrollEnd();
   }
 }
 

@@ -185,7 +185,7 @@
     buttons[0].onclick = () => { rating(id,'POSITIVA'); row.innerHTML='<span>Gracias por tu valoración.</span>'; };
     buttons[1].onclick = () => { rating(id,'NEGATIVA'); row.innerHTML='<span>Gracias. Revisaremos esta respuesta.</span>'; };
     chat.appendChild(row);
-    requestAnimationFrame(() => { chat.scrollTop = chat.scrollHeight; row.scrollIntoView({block:'end', behavior:'smooth'}); });
+    chat.scrollTop = chat.scrollHeight;
   }
 
   async function init() {
