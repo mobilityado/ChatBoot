@@ -1,22 +1,32 @@
-# Asistente Abordo 2.0
+# Asistente Abordo 3.0
 
-Proyecto listo para GitHub Pages.
+Proyecto para GitHub Pages conectado con Google Sheets mediante Google Apps Script.
 
-## Publicación
-1. Sube **el contenido de esta carpeta** a la raíz del repositorio `ChatBoot`.
-2. En GitHub abre **Settings > Pages**.
-3. Selecciona **Deploy from a branch**, rama `main`, carpeta `/root`.
-4. Espera a que GitHub publique la nueva versión.
+## URL configurada
 
-## Archivos principales
-- `index.html`: interfaz.
-- `styles.css`: diseño adaptable.
-- `content.js`: preguntas, respuestas y vínculos.
-- `app.js`: navegación, búsqueda, voz, visor y estadísticas locales.
-- `manifest.webmanifest` y `sw.js`: instalación PWA.
+La API está definida en `api-config.js`. El proyecto ya contiene la implementación indicada por el usuario.
 
-## Actualizar respuestas
-Edita únicamente `content.js`. Mantén la estructura de cada nodo.
+## Subir a GitHub
 
-## Estadísticas
-Se almacenan de forma anónima en el navegador mediante `localStorage`. No se envían datos a servidores. Para estadísticas centralizadas se requiere conectar Google Apps Script.
+1. Sube el contenido de esta carpeta a la raíz del repositorio `mobilityado/ChatBoot`.
+2. Conserva GitHub Pages apuntando a la rama principal y carpeta raíz.
+3. Abre `https://mobilityado.github.io/ChatBoot/` y usa Ctrl+Shift+R.
+
+## Apps Script
+
+El archivo `google-apps-script/Code.gs` contiene la API completa. Pégalo en el proyecto de Apps Script vinculado al Sheets.
+
+Al actualizar el código del Apps Script:
+1. Implementar > Administrar implementaciones.
+2. Editar la implementación.
+3. Seleccionar Nueva versión.
+4. Ejecutar como: tú.
+5. Acceso: cualquier usuario.
+
+## Hojas esperadas
+
+CONFIGURACION, MENUS, RESPUESTAS, AVISOS, CONTACTOS, SINONIMOS, ESTADISTICAS y VALORACIONES.
+
+## Respaldo
+
+`content.js` permanece como contenido local. Si la API no responde, el chatbot continúa funcionando con ese respaldo.
