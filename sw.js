@@ -1,4 +1,4 @@
-const CACHE='chatboot-9.1-mobile';
+const CACHE='chatboot-9.2-mobile-real';
 const CORE=['./','./index.html','./admin.html','./admin-app.js','./api-config.js','./api-integration.js','./manifest.webmanifest','./icon-192.png','./icon-512.png','./image-removebg-preview (22).png','./WHATS-removebg-preview.png','./CONSULTA-removebg-preview.png','./SALDOS-removebg-preview.png','./videos-01.png',
   './ai-assistant.js',
   './experience-upgrades.js'
