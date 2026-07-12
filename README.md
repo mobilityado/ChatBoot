@@ -1,10 +1,4 @@
-# Asistente Abordo 5.3
+# Asistente Abordo 6.0
+Versión validada con navegación directa, respaldo local, Google Sheets, detector de menús vacíos y diagnóstico de enlaces internos.
 
-Corrección integral de interfaz:
-- Logotipo integrado en SVG dentro del HTML (ya no depende de iconos externos para mostrarse).
-- Panel principal con filas fijas y chat con desplazamiento interno real.
-- Desplazamiento automático reforzado después de cada cambio del DOM.
-- Compatibilidad con contenido local y Google Sheets.
-- Nueva caché PWA 5.3.
-
-Sube todos los archivos a la raíz del repositorio ChatBoot y reemplaza los anteriores.
+Sube todos los archivos a la raíz del repositorio. Para revisar la navegación abre `diagnostico.html`.

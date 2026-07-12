@@ -9,6 +9,16 @@
   const normalize = value => String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9ñ ]/g, ' ').replace(/\s+/g, ' ').trim();
   const safeId = value => 'sheet_' + String(value || '').replace(/[^a-zA-Z0-9_-]/g, '_');
   const yes = value => String(value || '').trim().toUpperCase() === 'SI';
+  const localFallback = menu => {
+    const text = normalize(`${menu.TITULO || ''} ${menu.PALABRAS_CLAVE || ''}`);
+    if(text.includes('incentiv')) return 'incentivos_marca';
+    if(text.includes('liquid') || text.includes('viaje') || text.includes('cova')) return 'proceso_cova';
+    if(text.includes('sueldo') || text.includes('descuento')) return 'sueldo_menu';
+    if(text.includes('fonacot')) return 'fonacot';
+    if(text.includes('infonavit') || text.includes('credito')) return 'creditos_externos';
+    if(text.includes('asesor') || text.includes('contacto')) return 'hablar_asesor';
+    return '';
+  };
 
   function setConnectionStatus(ok, text) {
     const el = document.getElementById('connection-status');
@@ -61,9 +71,12 @@
       const ownAnswers = answers.filter(x => String(x.ID_MENU || '') === String(menu.ID_MENU));
       const options = [
         ...children.sort((a,b)=>(+a.ORDEN||0)-(+b.ORDEN||0)).map(x => ({id:x.ID_MENU, label:`${x.ICONO || ''} ${x.TITULO}`.trim(), next:safeId(x.ID_MENU)})),
-        ...ownAnswers.sort((a,b)=>(+a.ORDEN||0)-(+b.ORDEN||0)).map(x => ({id:x.ID_RESPUESTA, label:x.PREGUNTA, next:safeId(x.ID_RESPUESTA)})),
-        {id:'REGRESAR', label:'REGRESAR', next:'__REGRESAR__'}
+        ...ownAnswers.sort((a,b)=>(+a.ORDEN||0)-(+b.ORDEN||0)).map(x => ({id:x.ID_RESPUESTA, label:x.PREGUNTA, next:safeId(x.ID_RESPUESTA)}))
       ];
+      const fallback = localFallback(menu);
+      if (!options.length && fallback && window.nodes[fallback]) options.push({id:'LOCAL_FALLBACK', label:'Abrir información disponible', next:fallback});
+      if (!options.length) return;
+      options.push({id:'REGRESAR', label:'REGRESAR', next:'__REGRESAR__'});
       window.nodes[id] = {type:'question', id, prompt:`${menu.ICONO || ''} ${menu.TITULO}`.trim(), options};
     });
 
@@ -73,7 +86,7 @@
       window.nodes[id] = {type:'message', id, text:row.RESPUESTA || row.PREGUNTA || '', attachments:attachment ? [attachment] : [], sheetResponseId:row.ID_RESPUESTA};
     });
 
-    const roots = menus.filter(m => !String(m.ID_PADRE || '').trim()).sort((a,b)=>(+a.ORDEN||0)-(+b.ORDEN||0));
+    const roots = menus.filter(m => !String(m.ID_PADRE || '').trim() && window.nodes[safeId(m.ID_MENU)]).sort((a,b)=>(+a.ORDEN||0)-(+b.ORDEN||0));
     if (roots.length || answers.length) {
       window.nodes.sheet_root = {
         type:'question', id:'sheet_root', prompt:'CONTENIDO ACTUALIZABLE DESDE GOOGLE SHEETS',
@@ -85,6 +98,7 @@
 
     applyConfig(data.configuracion || {});
     showNotices(data.avisos || []);
+    window.validateNodes?.(false);
   }
 
   function applyConfig(config) {

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Asistente Abordo 5.3</title>
+<title>Asistente Abordo 6.0</title>
 <style>
 :root{
   --primary:#5b2c83; --primary-2:#7c3fad; --accent:#00a987; --danger:#dc3545;
@@ -70,14 +70,14 @@ button:focus-visible,input:focus-visible{outline:3px solid rgba(91,44,131,.25);o
     <div class="brand"><span class="brand-logo" aria-hidden="true"><svg viewBox="0 0 64 64" role="img" aria-label="Asistente Abordo" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#7c3fad"/><stop offset="1" stop-color="#00a987"/></linearGradient></defs><rect x="4" y="8" width="56" height="44" rx="14" fill="url(#g)"/><rect x="14" y="17" width="36" height="25" rx="8" fill="white" opacity=".96"/><circle cx="25" cy="29" r="4" fill="#5b2c83"/><circle cx="39" cy="29" r="4" fill="#5b2c83"/><path d="M24 37c5 4 11 4 16 0" fill="none" stroke="#00a987" stroke-width="3" stroke-linecap="round"/><path d="M32 8V3" stroke="#5b2c83" stroke-width="4" stroke-linecap="round"/><circle cx="32" cy="3" r="3" fill="#00a987"/></svg></span><div><div class="brand-title">Asistente Abordo</div><div class="brand-subtitle">Movilidad y Recaudación</div></div></div>
     <div><div class="side-label">Navegación</div><nav class="side-nav">
       <button class="side-btn active" data-jump="menuPrincipal"><span>🏠</span><span>Inicio</span></button>
-      <button class="side-btn" data-search="sueldo"><span>💰</span><span>Sueldo y descuentos</span></button>
-      <button class="side-btn" data-search="incentivos"><span>📊</span><span>Incentivos</span></button>
-      <button class="side-btn" data-search="herramientas"><span>🧰</span><span>Herramientas</span></button>
-      <button class="side-btn" data-search="videos"><span>🎥</span><span>Videos</span></button>
-      <button class="side-btn" data-search="documentos"><span>📄</span><span>Documentos</span></button>
-      <button class="side-btn" data-search="asesor"><span>👤</span><span>Hablar con asesor</span></button>
+      <button class="side-btn" data-jump="sueldo_menu"><span>💰</span><span>Sueldo y descuentos</span></button>
+      <button class="side-btn" data-jump="incentivos_marca"><span>📊</span><span>Incentivos</span></button>
+      <button class="side-btn" data-jump="proceso_cova"><span>🧰</span><span>Herramientas</span></button>
+      <button class="side-btn" data-jump="videos_hub"><span>🎥</span><span>Videos</span></button>
+      <button class="side-btn" data-jump="documentos_hub"><span>📄</span><span>Documentos</span></button>
+      <button class="side-btn" data-jump="hablar_asesor"><span>👤</span><span>Hablar con asesor</span></button>
     </nav></div>
-    <div class="side-card"><strong>Información dinámica</strong>Los avisos, menús y respuestas se actualizan desde Google Sheets sin volver a publicar el sitio.</div>
+    <div class="side-card"><strong>Información dinámica</strong>Los avisos, menús y respuestas se actualizan desde Google Sheets sin volver a publicar el sitio.<br><a href="./diagnostico.html" target="_blank" rel="noopener" style="color:#fff;font-weight:700">🔎 Abrir diagnóstico</a></div>
   </aside>
   <main class="main-panel">
     <div class="header">
@@ -88,7 +88,7 @@ button:focus-visible,input:focus-visible{outline:3px solid rgba(91,44,131,.25);o
       </div>
       <div class="header-actions"><div class="status-pill" id="connection-status"><span class="status-dot"></span><span>Información actualizada</span></div><button class="icon-btn" id="theme-toggle" title="Cambiar tema">🌙</button></div>
     </div>
-    <section class="hero"><div class="hero-inner"><div><h2>¿En qué podemos ayudarte hoy?</h2><p>Consulta información, tutoriales, documentos y herramientas desde un solo lugar.</p></div><div class="quick-actions"><button class="quick-btn" data-search="sueldo">💰 Sueldo</button><button class="quick-btn" data-search="factor">🔎 Consulta factor</button><button class="quick-btn" data-search="fonacot">🏦 Fonacot</button><button class="quick-btn" data-search="asesor">💬 Asesor</button></div></div></section>
+    <section class="hero"><div class="hero-inner"><div><h2>¿En qué podemos ayudarte hoy?</h2><p>Consulta información, tutoriales, documentos y herramientas desde un solo lugar.</p></div><div class="quick-actions"><button class="quick-btn" data-jump="sueldo_menu">💰 Sueldo</button><button class="quick-btn" data-jump="factor_pasajero">🔎 Consulta factor</button><button class="quick-btn" data-jump="fonacot">🏦 Fonacot</button><button class="quick-btn" data-jump="hablar_asesor">💬 Asesor</button></div></div></section>
     <div id="chat" class="chat" aria-live="polite"></div>
 
   <div class="footer">
@@ -518,6 +518,27 @@ Si tienes dudas te invitamos a que visualices el siguiente video:`,
   req_fonacot:{ type:'message', id:'accidente_siiab', text:' Accede al siguiente enlace para conocer todos los requisitos que necesitas cumplir para obtener tu crédito FONACOT y descubre lo sencillo que es agendar tu cita de manera rápida y segura:', attachments:[{type:'link', title:'💲 💰 REQUISITOS FONACOT', url:'./REQFONACOT.pdf'}]},
   constancia_percepciones:{ type:'message', id:'constancia_percepciones', text:'Acude al área de Relaciones industriales de RH para que puedan extenderte dicho documento.'},
 
+
+  videos_hub:{
+    type:'question', id:'videos_hub', prompt:'TUTORIALES EN VIDEO',
+    options:[
+      {id:'VIDEO_SUELDO_ADO',label:'Cálculo de sueldo ADO',next:'calculo_sueldo_ADO'},
+      {id:'VIDEO_SUELDO_TRT',label:'Cálculo de sueldo TRT / SUR',next:'calculo_sueldo_TRT'},
+      {id:'VIDEO_SUELDO_VOLKBUS',label:'Cálculo de sueldo VOLKBUS',next:'calculo_sueldo_VOLKBUS'},
+      {id:'VIDEO_INFONAVIT',label:'Aviso de retención Infonavit',next:'aviso_infonavit'},
+      {id:'REGRESAR',label:'REGRESAR',next:'menuPrincipal'}
+    ]
+  },
+  documentos_hub:{
+    type:'question', id:'documentos_hub', prompt:'DOCUMENTOS DISPONIBLES',
+    options:[
+      {id:'DOC_CAMINO',label:'Contigo en el camino',next:'accidente_siiab'},
+      {id:'DOC_INFONAVIT',label:'Requisitos Infonavit',next:'req_infonavit'},
+      {id:'DOC_FONACOT',label:'Requisitos Fonacot',next:'req_fonacot'},
+      {id:'REGRESAR',label:'REGRESAR',next:'menuPrincipal'}
+    ]
+  },
+
 }; // end nodes
 window.nodes = nodes;
 
@@ -537,8 +558,16 @@ function presentNode(nodeId, pushToHistory=true)
   currentNode = nodeId;
 
   if(node.type === 'question'){
-    addBotBubble(`<strong>${escapeHtml(node.prompt)}</strong>`,
-      node.options.map(o=>({label:o.label, next:o.next, primary:false})));
+    const available=(node.options||[]).filter(o=>['REGRESAR','__REGRESAR__'].includes(o.next) || !!nodes[o.next]);
+    const actionable=available.filter(o=>!['REGRESAR','__REGRESAR__'].includes(o.next));
+    if(!actionable.length){
+      addBotBubble(`<strong>${escapeHtml(node.prompt)}</strong><br><br>Esta sección aún no tiene información asociada. Puedes regresar o consultar otra categoría.`,[
+        {label:'REGRESAR',next:'__REGRESAR__',primary:true},
+        {label:'IR AL INICIO',next:'menuPrincipal',primary:false}
+      ]);
+      return;
+    }
+    addBotBubble(`<strong>${escapeHtml(node.prompt)}</strong>`, available.map(o=>({label:o.label, next:o.next, primary:false})));
   } else if(node.type === 'message'){
     let html = `<div>${escapeHtml(node.text).replace(/\n/g,'<br>')}</div>`;
     if(node.attachments && node.attachments.length){
@@ -593,6 +622,25 @@ function start(){
   scrollEnd();
 }
 
+
+function validateNodes(showMessage=false){
+  const errors=[]; const warnings=[];
+  Object.entries(nodes).forEach(([id,node])=>{
+    if(!node || !node.type){ errors.push(`${id}: nodo inválido`); return; }
+    if(node.type==='question'){
+      const actionable=(node.options||[]).filter(o=>o.next && !['REGRESAR','__REGRESAR__'].includes(o.next));
+      if(!actionable.length) warnings.push(`${id}: menú sin contenido`);
+      (node.options||[]).forEach(o=>{
+        if(o.next && !['REGRESAR','__REGRESAR__'].includes(o.next) && !nodes[o.next]) errors.push(`${id} → ${o.next}: destino inexistente`);
+      });
+    }
+  });
+  window.CHATBOOT_DIAGNOSTIC={errors,warnings,total:Object.keys(nodes).length};
+  if(showMessage){ addBotBubble(errors.length ? `Se encontraron ${errors.length} errores de navegación.` : `Validación correcta: ${Object.keys(nodes).length} nodos disponibles.`); }
+  return window.CHATBOOT_DIAGNOSTIC;
+}
+validateNodes(false);
+
 /* API pública para la integración con Google Sheets */
 window.nodes = nodes;
 window.presentNode = presentNode;
@@ -604,6 +652,7 @@ window.openLightbox = openLightbox;
 window.openPdf = openPdf;
 window.closeLightbox = closeLightbox;
 window.escapeHtml = escapeHtml;
+window.validateNodes = validateNodes;
 
 start();
 restartBtn.addEventListener('click', ()=> start());
