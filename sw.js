@@ -1,5 +1,5 @@
-const CACHE='chatboot-v8.0-20260712';
-const CORE=['./','./index.html','./api-config.js','./api-integration.js','./manifest.webmanifest','./icon-192.png','./icon-512.png','./image-removebg-preview (22).png','./WHATS-removebg-preview.png','./CONSULTA-removebg-preview.png','./SALDOS-removebg-preview.png','./videos-01.png',
+const CACHE='chatboot-v9.0-20260712';
+const CORE=['./','./index.html','./admin.html','./admin-app.js','./api-config.js','./api-integration.js','./manifest.webmanifest','./icon-192.png','./icon-512.png','./image-removebg-preview (22).png','./WHATS-removebg-preview.png','./CONSULTA-removebg-preview.png','./SALDOS-removebg-preview.png','./videos-01.png',
   './ai-assistant.js',
   './experience-upgrades.js'
 ];

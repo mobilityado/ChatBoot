@@ -24,6 +24,9 @@ function doGet(e) {
       case 'sinonimos': data = getRows_(SHEETS.SINONIMOS, true); break;
       case 'buscar': data = search_(clean_(e.parameter.texto || '')); break;
       case 'ia': data = answerAI_(clean_(e.parameter.texto || '')); break;
+      case 'adminlogin': data = adminLogin_(clean_(e.parameter.hash || '')); break;
+      case 'admindata': data = adminData_(clean_(e.parameter.token || '')); break;
+      case 'adminheaders': data = adminHeaders_(clean_(e.parameter.token || ''), clean_(e.parameter.hoja || '')); break;
       case 'datos':
       default: data = getAllData_();
     }
@@ -44,6 +47,18 @@ function doPost(e) {
     if (accion === 'valoracion') {
       appendRating_(body);
       return json_({ ok: true, mensaje: 'Valoración registrada' });
+    }
+    if (accion === 'adminsave') {
+      adminSave_(body);
+      return json_({ ok: true, mensaje: 'Registro guardado' });
+    }
+    if (accion === 'admindelete') {
+      adminDelete_(body);
+      return json_({ ok: true, mensaje: 'Registro eliminado' });
+    }
+    if (accion === 'adminlogout') {
+      adminLogout_(body.token);
+      return json_({ ok: true, mensaje: 'Sesión cerrada' });
     }
     if (accion === 'reporte') {
       body.valoracion = 'DESACTUALIZADA';
@@ -212,4 +227,159 @@ function callGeminiGrounded_(question, matches, key) {
   const answer = json.candidates && json.candidates[0] && json.candidates[0].content && json.candidates[0].content.parts && json.candidates[0].content.parts.map(p=>p.text||'').join('');
   if (!answer) throw new Error('Gemini no devolvió contenido');
   return answer.trim();
+}
+
+
+/** PANEL ADMINISTRATIVO — versión 9.0
+ * Contraseña inicial solicitada: 485218
+ * La aplicación cliente envía únicamente SHA-256. El valor en claro no se publica.
+ */
+const ADMIN_PASSWORD_HASH_DEFAULT = 'bbe44f66bad1b70769f51d1bacb8e46290cc77b336ec179ec8f4413fbce041cb';
+const ADMIN_SESSION_SECONDS = 21600; // 6 horas
+const ADMIN_ALLOWED_SHEETS = ['CONFIGURACION','MENUS','RESPUESTAS','AVISOS','CONTACTOS','SINONIMOS'];
+
+function configurarAdministrador() {
+  PropertiesService.getScriptProperties().setProperty('ADMIN_PASSWORD_HASH', ADMIN_PASSWORD_HASH_DEFAULT);
+  return 'Administrador configurado correctamente';
+}
+
+function cambiarClaveAdministrador(nuevaClave) {
+  const clean = String(nuevaClave || '').trim();
+  if (clean.length < 6) throw new Error('La contraseña debe tener al menos 6 caracteres.');
+  const hash = sha256_(clean);
+  PropertiesService.getScriptProperties().setProperty('ADMIN_PASSWORD_HASH', hash);
+  return 'Contraseña actualizada';
+}
+
+function adminLogin_(clientHash) {
+  const expected = PropertiesService.getScriptProperties().getProperty('ADMIN_PASSWORD_HASH') || ADMIN_PASSWORD_HASH_DEFAULT;
+  if (!clientHash || !timingSafeEqual_(clientHash.toLowerCase(), expected.toLowerCase())) {
+    Utilities.sleep(350);
+    throw new Error('Contraseña incorrecta');
+  }
+  const token = Utilities.getUuid().replace(/-/g,'') + Utilities.getUuid().replace(/-/g,'');
+  CacheService.getScriptCache().put('admin_session_' + token, '1', ADMIN_SESSION_SECONDS);
+  return { token: token, expiresIn: ADMIN_SESSION_SECONDS, usuario: 'Administrador' };
+}
+
+function adminLogout_(token) {
+  if (token) CacheService.getScriptCache().remove('admin_session_' + String(token));
+}
+
+function requireAdmin_(token) {
+  const key = 'admin_session_' + String(token || '');
+  if (!token || CacheService.getScriptCache().get(key) !== '1') throw new Error('Sesión administrativa vencida. Vuelve a iniciar sesión.');
+  CacheService.getScriptCache().put(key, '1', ADMIN_SESSION_SECONDS);
+}
+
+function adminData_(token) {
+  requireAdmin_(token);
+  const data = {};
+  ADMIN_ALLOWED_SHEETS.forEach(name => {
+    data[name] = { headers: getHeaders_(name), rows: getRows_(name, false) };
+  });
+  data.RESUMEN = {
+    menus: data.MENUS.rows.length,
+    respuestas: data.RESPUESTAS.rows.length,
+    avisos: data.AVISOS.rows.length,
+    contactos: data.CONTACTOS.rows.length
+  };
+  return data;
+}
+
+function adminHeaders_(token, sheetName) {
+  requireAdmin_(token);
+  validateAdminSheet_(sheetName);
+  return getHeaders_(sheetName);
+}
+
+function getHeaders_(sheetName) {
+  const sh = getSheet_(sheetName);
+  const lastColumn = sh.getLastColumn();
+  if (lastColumn < 1) return [];
+  return sh.getRange(2, 1, 1, lastColumn).getDisplayValues()[0].map(h => clean_(h).toUpperCase()).filter(Boolean);
+}
+
+function adminSave_(body) {
+  requireAdmin_(body.token);
+  const sheetName = clean_(body.hoja).toUpperCase();
+  validateAdminSheet_(sheetName);
+  const record = body.registro || {};
+  const headers = getHeaders_(sheetName);
+  if (!headers.length) throw new Error('La hoja no tiene encabezados en la fila 2.');
+  const idHeader = getIdHeader_(sheetName, headers);
+  let idValue = clean_(record[idHeader]);
+  if (!idValue) idValue = makeId_(sheetName);
+  record[idHeader] = idValue;
+  const sh = getSheet_(sheetName);
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const values = sh.getDataRange().getDisplayValues();
+    let rowNumber = -1;
+    const idIndex = headers.indexOf(idHeader);
+    for (let i = 2; i < values.length; i++) {
+      if (clean_(values[i][idIndex]) === idValue) { rowNumber = i + 1; break; }
+    }
+    const row = headers.map(h => sanitizeAdminValue_(record[h], h));
+    if (rowNumber > 0) sh.getRange(rowNumber, 1, 1, headers.length).setValues([row]);
+    else sh.getRange(Math.max(3, sh.getLastRow() + 1), 1, 1, headers.length).setValues([row]);
+    clearDataCache_();
+  } finally { lock.releaseLock(); }
+}
+
+function adminDelete_(body) {
+  requireAdmin_(body.token);
+  const sheetName = clean_(body.hoja).toUpperCase();
+  validateAdminSheet_(sheetName);
+  const id = clean_(body.id);
+  if (!id) throw new Error('Falta el identificador del registro.');
+  const headers = getHeaders_(sheetName);
+  const idHeader = getIdHeader_(sheetName, headers);
+  const idIndex = headers.indexOf(idHeader);
+  const sh = getSheet_(sheetName);
+  const values = sh.getDataRange().getDisplayValues();
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    for (let i = values.length - 1; i >= 2; i--) {
+      if (clean_(values[i][idIndex]) === id) { sh.deleteRow(i + 1); clearDataCache_(); return; }
+    }
+    throw new Error('No se encontró el registro.');
+  } finally { lock.releaseLock(); }
+}
+
+function validateAdminSheet_(name) {
+  if (ADMIN_ALLOWED_SHEETS.indexOf(name) === -1) throw new Error('Hoja no autorizada: ' + name);
+}
+function getIdHeader_(sheetName, headers) {
+  if (sheetName === 'CONFIGURACION') return 'CLAVE';
+  if (sheetName === 'SINONIMOS') return 'TERMINO';
+  const preferred = headers.find(h => /^ID_/.test(h));
+  if (!preferred) throw new Error('La hoja no tiene columna identificadora.');
+  return preferred;
+}
+function makeId_(sheetName) {
+  const prefix = ({MENUS:'menu',RESPUESTAS:'resp',AVISOS:'aviso',CONTACTOS:'contacto'}[sheetName] || 'item');
+  return prefix + '_' + Utilities.formatDate(new Date(), TZ, 'yyyyMMdd_HHmmss') + '_' + Math.floor(Math.random()*900+100);
+}
+function sanitizeAdminValue_(value, header) {
+  let v = String(value == null ? '' : value).replace(/[\u0000-\u001F]/g,' ').trim();
+  const max = header === 'RESPUESTA' || header === 'MENSAJE' ? 5000 : header.indexOf('URL') >= 0 ? 1500 : 800;
+  if (header.indexOf('URL') >= 0 && v && !/^(https?:\/\/|\.\/|\/)/i.test(v)) throw new Error('URL no válida en ' + header);
+  return v.slice(0,max);
+}
+function clearDataCache_() {
+  const cache = CacheService.getScriptCache();
+  ['chatboot_datos_v8','chatboot_datos_v9'].forEach(k => cache.remove(k));
+}
+function sha256_(text) {
+  const bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, String(text), Utilities.Charset.UTF_8);
+  return bytes.map(b => ('0' + ((b < 0 ? b + 256 : b).toString(16))).slice(-2)).join('');
+}
+function timingSafeEqual_(a,b) {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i=0;i<a.length;i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
 }
